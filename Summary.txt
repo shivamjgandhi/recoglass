@@ -1,1 +1,1 @@
-This is the recoglass project. Recoglass is a Google Glass application that replaces facial recognition functions for people with prosopagnosia.
+This is the recoglass project. Recoglass is a Google Glass application that replaces facial recognition functions for people with prosopagnosia. It was made at the Hack@Brown hackathon.
