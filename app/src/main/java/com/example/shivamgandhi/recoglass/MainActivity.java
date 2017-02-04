@@ -8,9 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import com.microsoft.windowsazure.mobileservices.*;
+
+import java.net.MalformedURLException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private MobileServiceClient mClient;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView mImageView;
     Button button;
@@ -24,6 +28,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button = (Button)findViewById(R.id.button);
 
         button.setOnClickListener(this);
+
+        try {
+            mClient = new MobileServiceClient("https://recoglass.azurewebsites.net", this);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void dispatchTakePictureIntent(){
