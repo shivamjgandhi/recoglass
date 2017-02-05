@@ -5,11 +5,13 @@ import android.os.AsyncTask;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
+import com.microsoft.projectoxford.face.contract.CreatePersonResult;
 import com.microsoft.projectoxford.face.contract.Face;
 import com.microsoft.projectoxford.face.contract.IdentifyResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +33,7 @@ public class Detection {
 
     }
 
-    public void detectAsync(Bitmap bmp, Consumer<UUID> callback) {
+    public void detectAsync(Bitmap bmp, Consumer<UUID> faceIdCallback) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, baos);
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
@@ -43,13 +45,13 @@ public class Detection {
                 e.printStackTrace();
             }
             if (result != null && result.length > 0) {
-                callback.accept(result[0].faceId);
+                faceIdCallback.accept(result[0].faceId);
             }
         };
         ex.submit(r);
     }
 
-    public void identifyAsync(String personGroupId, UUID[] faceIds, int numCandidates, float confidence, Consumer<UUID[]>[] callbacks) {
+    public void identifyAsync(String personGroupId, UUID[] faceIds, int numCandidates, float confidence, Consumer<UUID[]>[] personIdCallbacks) {
         Runnable r = ()-> {
             IdentifyResult[] results = null;
             try {
@@ -57,13 +59,56 @@ public class Detection {
             } catch (Exception e) {
                 // TODO: Exception handling
             }
+            if (results == null) {
+                return;
+            }
             for (int i = 0; i < results.length; i++) {
                 UUID[] uuids = new UUID[numCandidates];
                 results[i].candidates.toArray(uuids);
-                callbacks[i].accept(uuids);
+                personIdCallbacks[i].accept(uuids);
             }
         };
         ex.submit(r);
+
+    }
+
+    public void createPerson(String personGroupId, String name, String userData, Consumer<UUID> personIdCallback) {
+        Runnable r = () -> {
+            CreatePersonResult res = null;
+            try {
+                res = faceServiceClient.createPerson(personGroupId, name, userData);
+            } catch (Exception e) {
+                // TODO: Exception handling
+            }
+            if (res == null) {
+                return;
+            }
+            personIdCallback.accept(res.personId);
+        };
+    }
+
+    public void createPersonGroup(String personGroupId, String name, String userData) {
+        Runnable r = () -> {
+            try {
+                faceServiceClient.createPersonGroup(personGroupId, name, userData);
+            } catch (Exception e) {
+                // TODO: Exception handling
+            }
+
+        };
+        ex.submit(r);
+    }
+
+    public void addPersonFace(String personGroupId, UUID personId, String userData, byte[] image, Consumer<UUID> persistentFaceIdConsumer) {
+        Runnable r = () -> {
+            InputStream is = new ByteArrayInputStream(image);
+            try {
+                faceServiceClient.addPersonFace(personGroupId, personId, is, userData, null);
+            } catch (Exception e) {
+
+            }
+
+        };
 
     }
 
