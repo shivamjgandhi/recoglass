@@ -53,9 +53,7 @@ public class Detection {
             public void run() {
                 Face[] result = null;
                 try {
-                    System.out.println("Detect Requests");
                     result = faceServiceClient.detect(bais, true, false, null);
-                    System.out.println("Detect Request");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -76,8 +74,10 @@ public class Detection {
                     results = faceServiceClient.identity(personGroupId, faceIds, confidence, numCandidates);
                 } catch (Exception e) {
                     // TODO: Exception handling
+                    e.printStackTrace();
                 }
                 if (results == null) {
+                    System.out.println("WTF NULL RESULTS");
                     return;
                 }
                 for (int i = 0; i < results.length; i++) {
@@ -100,6 +100,7 @@ public class Detection {
                     res = faceServiceClient.createPerson(personGroupId, name, userData);
                 } catch (Exception e) {
                     // TODO: Exception handling
+                    e.printStackTrace();
                 }
                 if (res == null) {
                     return;
@@ -117,6 +118,7 @@ public class Detection {
                     faceServiceClient.createPersonGroup(personGroupId, name, userData);
                 } catch (Exception e) {
                     // TODO: Exception handling
+                    e.printStackTrace();
                 }
             }
 
@@ -132,7 +134,7 @@ public class Detection {
                 try {
                     faceServiceClient.addPersonFace(personGroupId, personId, is, userData, null);
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
         };
@@ -148,6 +150,7 @@ public class Detection {
                     peeps = faceServiceClient.getPersons(personGroupId);
                 } catch (Exception e) {
                     // TODO: Exception handling
+                    e.printStackTrace();
                 }
                 if (peeps == null) {
                     return;
@@ -171,6 +174,7 @@ public class Detection {
                     p = faceServiceClient.getPerson(personGroupId, personId);
                 } catch (Exception e) {
                     // TODO: Add exception handling
+                    e.printStackTrace();
                 }
                 if (p != null) {
                     personConsumer.accept(p);
@@ -180,7 +184,7 @@ public class Detection {
         ex.submit(r);
     }
 
-    public void train(final String personGroupId) {
+    public void train(final String personGroupId, final Consumer<String> s) {
         Runnable r = new Runnable() {
             public void run() {
                 try {
@@ -188,6 +192,7 @@ public class Detection {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                s.accept("");
 
             }
         };
@@ -203,9 +208,7 @@ public class Detection {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (stat == null) {
-                    return;
-                }
+
                 trainingStatusCallback.accept(stat);
 
             }

@@ -19,34 +19,50 @@ import com.microsoft.projectoxford.face.contract.TrainingStatus;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView mImageView;
-    Button button1, button2;
+    Button button1, button2, trainingButton;
     String mCurrentPhotoPath;
     Detection det;
-    static final String DEF_PERSON_GROUP = "Peeps";
+    static final String DEF_PERSON_GROUP = "peeps";
     EditText txt;
+    static final String PEOPLE_FILE = "people.hash";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        det = new Detection("5347c2df9ae94876814ff955865024cd");
+
+        det = new Detection("6822f1e2bd8744a4b44206bc3b1dded6");
+        //det.createPersonGroup(DEF_PERSON_GROUP, "Peoples!", "");
         setContentView(R.layout.activity_main);
         txt = (EditText) findViewById(R.id.nameField);
         mImageView = (ImageView)findViewById(R.id.mImageView);
         button1 = (Button)findViewById(R.id.Save_Face);
         button2 = (Button)findViewById(R.id.Search_Face);
+        trainingButton = (Button) findViewById(R.id.trainButton);
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(this.getFilesDir(), PEOPLE_FILE)));
+            HashMap<String, String> s = (HashMap<String, String>)ois.readObject();
+            PersonModel.updatePersonMap(s, det, DEF_PERSON_GROUP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,16 +76,27 @@ public class MainActivity extends AppCompatActivity {
                 onSearchButtonClick(v);
             }
         });
-        findViewById(R.id.trainButton).setOnClickListener(new View.OnClickListener() {
+        final Button trainButton = (Button) findViewById(R.id.trainButton);
+        trainButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                det.train(DEF_PERSON_GROUP);
-                det.progress(DEF_PERSON_GROUP, new Consumer<TrainingStatus>() {
-                    public void accept(TrainingStatus t) {
-                        TextView v = (TextView)findViewById(R.id.textView2);
-                        v.setText(t.message);
+            public void onClick(final View v) {
+                det.train(DEF_PERSON_GROUP, new Consumer<String>() {
+                    public void accept(String s){
+                        final Button trainButton = (Button) v;
+                        det.progress(DEF_PERSON_GROUP, new Consumer<TrainingStatus>() {
+                            public void accept(TrainingStatus t) {
+
+
+                                if (t == null) {
+                                    return;
+                                }
+                                TextView v = (TextView)findViewById(R.id.textView2);
+                                v.setText(t.status.toString());
+                            }
+                        });
                     }
                 });
+
             }
         });
 
@@ -87,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        System.out.println("Lmao");
         if (requestCode == 1 && resultCode == RESULT_OK){
             Bundle extras = data.getExtras();
             final Bitmap imageBitmap = (Bitmap) extras.get("data");
@@ -97,10 +123,21 @@ public class MainActivity extends AppCompatActivity {
                     p.addFace(imageBitmap);
                 }
             });
-            ObjectOutputStream oos = new ObjectOutputStream();
-            PersonModel.getPersonMap();
-            Intent myIntent = new Intent(this, MainActivity.class);
-            startActivity(myIntent);
+            Runnable r = new Runnable() {
+                public void run() {
+                    try {
+                        FileOutputStream fos = new FileOutputStream(new File(MainActivity.this.getFilesDir(), PEOPLE_FILE));
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                        oos.writeObject(PersonModel.getPersonMap());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            new Thread(r).start();
+
+
+
 
         }
         else if (requestCode == 2 && resultCode == RESULT_OK) {
@@ -116,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                                     UUID bestCandidate = u[0];
                                     det.getPersonData(DEF_PERSON_GROUP, bestCandidate, new Consumer<Person>() {
                                         public void accept(Person p) {
+
                                             txt1.setText(p.name);
                                         }
                                     });
@@ -125,16 +163,24 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+            Intent myIntent = new Intent(this, MainActivity.class);
+            startActivity(myIntent);
         }
+        button1.setEnabled(true);
+        button2.setEnabled(true);
+        trainingButton.setEnabled(true);
     }
 
 
     public void onSaveButtonClick(View v) {
+        v.setEnabled(false);
         dispatchTakePictureIntent(1);
+
 
     }
 
     public void onSearchButtonClick(View v) {
+        v.setEnabled(false);
         dispatchTakePictureIntent(2);
     }
     private void returnName(final Bitmap imageBitmap){
@@ -149,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String name = txt.getText().toString();
         String imageFileName = name + "_JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = this.getCacheDir();
         File image = File.createTempFile(
                 imageFileName,
                 ".jpg",
