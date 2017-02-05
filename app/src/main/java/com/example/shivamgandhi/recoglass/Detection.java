@@ -77,7 +77,6 @@ public class Detection {
                     e.printStackTrace();
                 }
                 if (results == null) {
-                    System.out.println("WTF NULL RESULTS");
                     return;
                 }
                 for (int i = 0; i < results.length; i++) {
@@ -97,7 +96,7 @@ public class Detection {
             public void run() {
                 CreatePersonResult res = null;
                 try {
-                    res = faceServiceClient.createPerson(name, personGroupId, userData);
+                    res = faceServiceClient.createPerson(personGroupId, name, userData);
                 } catch (Exception e) {
                     // TODO: Exception handling
                     e.printStackTrace();

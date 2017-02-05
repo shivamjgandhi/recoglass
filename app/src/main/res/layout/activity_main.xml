@@ -10,25 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.shivamgandhi.recoglass.MainActivity">
 
-    <Button
-        android:text="Search Face"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp"
-        android:id="@+id/Save_Face"
-        android:layout_alignParentBottom="true" />
-
-    <Button
-        android:text="Save Face"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/Save_Face"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="17dp"
-        android:layout_marginEnd="17dp"
-        android:id="@+id/Search_Face" />
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,20 +27,37 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-    <Button
-        android:text="Train"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/mImageView"
-        android:layout_toStartOf="@+id/Search_Face"
-        android:layout_marginTop="19dp"
-        android:id="@+id/trainButton" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/trainButton"
         android:layout_centerHorizontal="true"
         android:id="@+id/textView2" />
+
+    <Button
+        android:text="Save Face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:id="@+id/Save_Face"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Search Face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="17dp"
+        android:id="@+id/Search_Face"
+        android:layout_below="@+id/nameField"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Train"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/trainButton"
+        android:layout_below="@+id/nameField"
+        android:layout_toEndOf="@+id/Search_Face" />
 
 </RelativeLayout>
