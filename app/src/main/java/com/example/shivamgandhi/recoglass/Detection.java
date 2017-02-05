@@ -25,13 +25,17 @@ import java.util.function.*;
 public class Detection {
     public static final int IMAGE_QUALITY = 100;
     private ExecutorService ex;
-    private FaceServiceClient faceServiceClient;
+    private static FaceServiceClient faceServiceClient;
     public Detection(String subscriptionKey) {
         faceServiceClient = new FaceServiceRestClient(subscriptionKey);
         ex = Executors.newFixedThreadPool(5);
 
 
     }
+    public static FaceServiceClient getFaceServiceClient(){
+        return faceServiceClient;
+    }
+
 
     public void detectAsync(Bitmap bmp, Consumer<UUID> faceIdCallback) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

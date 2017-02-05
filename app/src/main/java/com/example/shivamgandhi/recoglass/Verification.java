@@ -5,7 +5,7 @@ package com.example.shivamgandhi.recoglass;
  */
 
 
-
+import com.example.shivamgandhi.recoglass.Detection;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -51,7 +51,7 @@ public class Verification extends AppCompatActivity {
         @Override
         protected VerifyResult doInBackground(Void... params){
             //need a getter method somewhere to return a FaceServiceClient
-            FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
+            FaceServiceClient faceServiceClient = Detection.getFaceServiceClient();
             try {
                 publishProgress("Verifying...");
                 //Start verification
@@ -104,7 +104,7 @@ public class Verification extends AppCompatActivity {
         }
         @Override
         protected Face[] doInBackground(InputStream... params){
-            FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
+            FaceServiceClient faceServiceClient = Detection.getFaceServiceClient();
             try{
                 publishProgress("Detecting....");
                 //DETECTION OF THE FACE?
