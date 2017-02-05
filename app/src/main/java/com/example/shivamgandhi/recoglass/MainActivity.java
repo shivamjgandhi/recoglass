@@ -6,69 +6,118 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.microsoft.projectoxford.face.contract.Person;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView mImageView;
     Button button1, button2;
-    EditText editText;
     String mCurrentPhotoPath;
+    Detection det;
+    static final String DEF_PERSON_GROUP = "Peeps";
+    EditText txt;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        System.exit(0);
+        txt = (EditText) findViewById(R.id.nameField);
         mImageView = (ImageView)findViewById(R.id.mImageView);
         button1 = (Button)findViewById(R.id.Save_Face);
         button2 = (Button)findViewById(R.id.Search_Face);
-        editText = (EditText)findViewById(R.id.editText);
 
-        button1.setOnClickListener(this);
-        button2.setOnClickListener(this);
+        txt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!txt.hasFocus())
+                txt.setText("");
+            }
+        });
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSaveButtonClick(v);
+            }
+        });
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSearchButtonClick(v);
+            }
+        });
+
+        det = new Detection("API_KEY");
     }
 
-    private void dispatchTakePictureIntent(){
+    private void dispatchTakePictureIntent(int i){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            startActivityForResult(takePictureIntent, i);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+
+        if (requestCode == 1 && resultCode == RESULT_OK){
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             mImageView.setImageBitmap(imageBitmap);
+            PersonModel p = PersonModel.getPerson(txt.getText().toString(), det, DEF_PERSON_GROUP);
+            p.addFace(imageBitmap);
+        }
+        else if (requestCode == 2 && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mImageView.setImageBitmap(imageBitmap);
+            final EditText txt1 = txt;
+            det.detectAsync(imageBitmap, new Consumer<UUID>() {
+                public void accept(UUID u) {
+                    det.identifyAsync(DEF_PERSON_GROUP, new UUID[]{u}, 1, 0, new ArrayList<Consumer<UUID[]>>(Arrays.asList(
+                            new Consumer<UUID[]>() {
+                                public void accept(UUID[] u) {
+                                    UUID bestCandidate = u[0];
+                                    det.getPersonData(DEF_PERSON_GROUP, bestCandidate, new Consumer<Person>() {
+                                        public void accept(Person p) {
+                                            txt1.setText(p.name);
+                                        }
+                                    });
+                                }
+                            }
+                    )));
+
+                }
+            });
         }
     }
 
-    @Override
-    public void onClick(View v){
-        if(v == findViewById(R.id.Save_Face)){
-            dispatchTakePictureIntent();
-            //Save the picture on disk with the title
 
-        }
-        else if(v == findViewById(R.id.Search_Face)){
-            dispatchTakePictureIntent();
-
-        }
+    public void onSaveButtonClick(View v) {
+        dispatchTakePictureIntent(1);
     }
 
+    public void onSearchButtonClick(View v) {
+        dispatchTakePictureIntent(2);
+    }
     private void returnName(final Bitmap imageBitmap){
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
@@ -79,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private File createImageFile() throws IOException{
         //Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String name = editText.getText().toString();
+        String name = txt.getText().toString();
         String imageFileName = name + "_JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
