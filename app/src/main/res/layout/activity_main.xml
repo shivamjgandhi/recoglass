@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
@@ -50,7 +49,7 @@
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
-=======
+
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
@@ -130,4 +129,3 @@
 
     </LinearLayout>
 </ScrollView>
->>>>>>> a32e867cf5ef653c9a24cdeb391acd5377535d30

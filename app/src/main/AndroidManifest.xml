@@ -4,12 +4,9 @@
 
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
-<<<<<<< HEAD
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-=======
     <uses-permission android:name="android.permission.INTERNET" />
->>>>>>> a32e867cf5ef653c9a24cdeb391acd5377535d30
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
