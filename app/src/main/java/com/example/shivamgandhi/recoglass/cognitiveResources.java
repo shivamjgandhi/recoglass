@@ -2,7 +2,7 @@ package com.example.shivamgandhi.recoglass;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.media.Image;
+import android.graphics.BitmapFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Scanner;
 
+
 /**
  * Created by Cruz on 2/4/17.
  */
@@ -34,7 +35,8 @@ public class cognitiveResources {
     public static final int MAX_IMAGE_SIZE = 4000000;
     // Please do not fill this in until
     public static final String SUBSCRIPTION_KEY = "a5b5547007d54be7aa5bb75555376661";
-    public static final String FACE_API_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/";
+    //public static final String FACE_API_URL = "https://westus.api.cognitive.microsoft.com/face/v1.0/";
+    public static final String FACE_API_URL = "http://localhost/face/v1.0/";
     enum APIAction {
         DETECT ("detect"),
         C_PERSON_GROUP ("persongroups"),
@@ -50,7 +52,7 @@ public class cognitiveResources {
             return action;
         }
     }
-    public static Map<String, Object> createRequest(String url, Map<String, String> values, byte[] body, String contentType) throws IOException, JSONException {
+    private static Map<String, Object> createRequest(String url, Map<String, String> values, byte[] body, String contentType) throws IOException, JSONException {
         Map<String, Object> responseData = new HashMap();
         JSONObject o = rawRequest(url, values, body, contentType);
         Iterator<String> it = o.keys();
@@ -62,7 +64,7 @@ public class cognitiveResources {
         return responseData;
     }
 
-    public static JSONObject rawRequest(String url, Map<String, String> values, byte[] body, String contentType) throws IOException, JSONException{
+    private static JSONObject rawRequest(String url, Map<String, String> values, byte[] body, String contentType) throws IOException, JSONException{
         String queryString = "";
         // Building url
         if (values != null) {
@@ -80,6 +82,8 @@ public class cognitiveResources {
         // Subscription key
         connection.setRequestProperty("Ocp-Apim-Subscription-Key", SUBSCRIPTION_KEY);
         connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
         if (body != null) {
             connection.getOutputStream().write(body);
         }
@@ -168,7 +172,7 @@ public class cognitiveResources {
         sendJsonBody(url, parameters, requestBody);
     }
 
-    private static String identify(String personGroupId, double confidence, String faceId) throws JSONException, IOException{
+    public static String identify(String personGroupId, double confidence, String faceId) throws JSONException, IOException{
         String url = FACE_API_URL + APIAction.IDENTIFY;
         JSONObject data = new JSONObject();
         data.put("personGroupId",personGroupId);
@@ -181,5 +185,12 @@ public class cognitiveResources {
         JSONArray candidates = face.getJSONArray("candidates");
         JSONObject person = candidates.getJSONObject(0);
         return (String) person.get("personId");
+    }
+
+    public static String testDetect() {
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bmp = BitmapFactory.decodeFile("C:\\Users\\James\\Desktop\\download.jpg", opt);
+        return cognitiveResources.detect(bmp);
     }
 }
