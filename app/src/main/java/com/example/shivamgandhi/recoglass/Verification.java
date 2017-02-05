@@ -136,7 +136,6 @@ public class Verification extends AppCompatActivity {
         @Override
         protected void onPostExecute(Face[] result){
             //SHow the result on screen when detection is done.
-            setUiAfterDetection(result, mIndex, mSucceed);
         }
 
     }
@@ -156,9 +155,6 @@ public class Verification extends AppCompatActivity {
 
     //the adapter of the listview which contains the detected faces from the two images.
 
-    //FIND OUT WHERE FACELISTADAPTER IS, AND IF I NEED IT
-    protected FaceListAdapter mFaceListAdapter0;
-    protected FaceListAdapter mFaceListAdapter1;
 
     //progress dialog popped up when communicating with server
     ProgressDialog progressDialog;
@@ -169,10 +165,7 @@ public class Verification extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Intialize the two listviews which contain the thumbnails of the detected faces
-        initializeFaceList(0);
-        initializeFaceList(1);
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(getString(R.string.progress_dialog_title));
         //find out where these methods are created
     }
 
@@ -203,79 +196,36 @@ public class Verification extends AppCompatActivity {
             return;
         }
 
-        if(resultCode == RESULT_OK){
-            //If image is selected successfully, set the image URI and bitmap.
-            Bitmap bitmap = ImageHelper.loadSizeLimitedBitmapFromUri(data.getData(), getContentResolver());
-            if(bitmap != null){
-                //image is select but not detected, disable verification button.
-                //Set the image to detect.
-                if(index == 0){
-                    mBitmap0 = bitmap;
-                    mFaceId0 = null;
-                } else {
-                    mBitmap1 = bitmap;
-                    mFaceId1 = null;
-                }
-                //add verification log.
-                System.out.println("Image" + index + ":" + data.getData() + " resized to " + bitmap.getWid() +
-                        "x" + bitmap.getHeight());
-                //start detecting in image
-                detect(bitmap, index);
-            }
-        }
+//        if(resultCode == RESULT_OK){
+//            //If image is selected successfully, set the image URI and bitmap.
+//            Bitmap bitmap = ImageHelper.loadSizeLimitedBitmapFromUri(data.getData(), getContentResolver());
+//            if(bitmap != null){
+//                //image is select but not detected, disable verification button.
+//                //Set the image to detect.
+//                if(index == 0){
+//                    mBitmap0 = bitmap;
+//                    mFaceId0 = null;
+//                } else {
+//                    mBitmap1 = bitmap;
+//                    mFaceId1 = null;
+//                }
+//                //add verification log.
+//                System.out.println("Image" + index + ":" + data.getData() + " resized to " + bitmap.getWid() +
+//                        "x" + bitmap.getHeight());
+//                //start detecting in image
+//                detect(bitmap, index);
+//            }
+//        }
     }
 
 
 
-    //called when the select image0 button is clicked in face face verification
 
-    public void selectImage0(View view){
-        //figure out where the fuck select image is
-        selectImage(0);
-    }
-
-    public void selectImage1(View view){
-        selectImage(1);
-    }
 
     //MAIN METHOD CALL called when the verify button is clicked.
     public void verify(View view){
 
         new VerificationTask(mFaceId0, mFaceId1).execute();
-    }
-
-
-    //Select the image indicated by index
-    private void selectImage(int index){
-        Intent intent = new Intent(this, SelectImageActivity.class);
-        startActivityForResult(intent, index == 0 ? REQUEST_SELECT_IMAGE_0: REQUEST_SELECT_IMAGE_1);
-    }
-
-
-
-    //Initialize the ListView which contains the thumbnails of the detected faces
-    private void initializeFaceList(final int index){
-        ListView listView = (ListView) findViewById(index == 0? R.id.list_faces_0:
-         R.id.list_faces_1);
-        //when a detect face in the gridview is clicked, the face is selected to verify
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                FaceListAdapter faceListAdapter = index == 0 ? mFaceListAdapter0: mFaceListAdapter1;
-                if (!faceListAdapter.faces.get(position).faceId.equals(
-                        index == 0 ? mFaceId0: mFaceId1)){
-                    if(index == 0){
-                        mFaceId0 = faceListAdapter.faces.get(position).faceId;
-                    } else {
-                        mFaceId1 = faceListAdapter.faces.get(position).faceId;
-                    }
-                    ImageView imageView = (ImageView) findViewById(index == 0 ? R.id.image_0:
-                    R.id.image_1);
-                    imageView.setImageBitmap(faceListAdapter.faceThumbnails.get(position));
-                    setInfo("");
-                }
-            }
-        });
     }
 
 
@@ -288,56 +238,12 @@ public class Verification extends AppCompatActivity {
         if(result != null){
             DecimalFormat formatter = new DecimalFormat("#0.00");
             String verificationResult = (result.isIdentical ? "the same person":
-             "Different persons" + ". The confidence is " + formatter.format(result.confidence);
+             "Different persons" + ". The confidence is " + formatter.format(result.confidence));
             setInfo(verificationResult);
         }
     }
 
-    //show the result on screen when detection in image that indicated by index is done.
-    private void setUiAfterDetection(Face[] result, int index, boolean suceed){
-        if(succeed){
-            System.out.println("Response: Success. Detected " + result.length + " face(s) in image"
-            + index);
-            setInfo(result.length + " face" + (result.length != 1 ? "s": "") + " detected");
-            //show the detailed list of detected faces
-            FaceListAdapter faceListAdapter = new FaceListAdapter(result, index);
-            //set the default face id to the id of first face, if one or more faces are detected.
-            if(faceListAdapter.faces.size() != 0){
-                if (index == 0){
-                    mFaceId0 = faceListAdapter.faces.get(0).faceId;
-                } else {
-                    mFaceId1 = faceListAdapter.faces.get(0).faceId;
-                }
-                //show the thumbnail of the defail face
-                ImageView imageView = (ImageView) findViewById(index == 0?
-                R.id.image_0: R.id.image_1);
-                imageView.setImageBitmap(faceListAdapter.faceThumbnails.get(0));
-            }
-            //show the list of detected face thumbnails.
-            ListView listView = (ListView) findViewById(index == 0 ? R.id.list_faces_0: R.id.list_faces_1);
-            listView.setAdapter(faceListAdapter);
-            listView.setVisibility(View.VISIBLE);
-            //set the face list adapters and bitmaps.
-            if(index == 0){
-                mFaceListAdapter0 = faceListAdapter;
-                mBitmap0 = null;
-            } else {
-                mFaceListAdapter1 = faceListAdapter;
-                mBitmap1 = null;
-            }
-        }
 
-        if(result != null && result.length == 0){
-            setInfo("No face detected!");
-        }
-
-        if((index == 0 && mBitmap1 == null) || (index == 1 && mBitmap0 == null) || index == 2){
-            progressDialog.dismiss();
-        }
-        if(mFaceId0 != null && mFaceId1 != null){
-            setVerifyButtonEnabledStatus(true);
-        }
-    }
 
     //set the information panel on screen.
     private void setInfo(String info){
@@ -346,65 +252,6 @@ public class Verification extends AppCompatActivity {
     }
 
 
-    //the adapter of the gridview which contains the thumbnaisl of the detected faces.
-    private class FaceListAdapter extends BaseAdapter{
-        //the detected faces
-        List<Face> faces;
-        int mIndex;
-        //the thumbnails of detected faces.
-        List<Bitmap> faceThumbnails;
-        //Initialize w/ detection result and index indicatin on which image the result is got.
-        FaceListAdapter(Face[] detectionResult, int index){
-            faces = new ArrayList<>();
-            faceThumbnails = new ArrayList<>();
-            mIndex = index;
-            if(detectionResult != null){
-                faces = Arrays.asList(detectionResult);
-                for(Face face: faces){
-                    try{
-                        //crop face thumbnail w/o landmarks drawn
-                        faceThumbnails.add(ImageHelper.generateFaceThumbnail(index == 0?
-                         mBitmap0: mBitmap1, face.faceRectangle))
-                    } catch(IOException e){
-                        //show the exception when generating face thumbnail fails.
-                        setInfo(e.getMessage());
-                    }
-                }
-            }
-        }
 
-        @Override
-        public int getCount(){
-            return faces.size();
-        }
-
-        @Override
-        public Object getItem(int position){
-            return faces.get(position);
-        }
-        @Override
-        public long getItemId(int position){
-            return position;
-        }
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent){
-            if(convertView == null){
-                LayoutInflater layoutInflater = (LayoutInflater)getSystemService(
-                        Context.LAYOUT_INFLATER_SERVICE);
-                convertView = layoutInflater.inflate(R.layout.item_face, parent, false);
-            }
-            convertView.setId(position);
-            Bitmap thumbnailToShow = faceThumbnails.get(position);
-            if(mIndex == 0 && faces.get(position).faceId.equals(mFaceId0)){
-                thumbnailToShow = ImageHelper.highlightSelectedFaceThumbnail(thumbnailToShow);
-            } else if (mIndex == 1 && faces.get(position).faceId.equals(mFaceId1)){
-                thumbnailToShow = ImageHelper.highlightSelectedFaceThumbnail(thumbnailToShow);
-            }
-
-            //Show the face thumbnail.
-            ((ImageView)convertView.findViewById(R.id.image_face)).setImageBitmap(thumbnailToShow);
-            return convertView;
-        }
-    }
 
 }
