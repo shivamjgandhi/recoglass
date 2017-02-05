@@ -7,13 +7,18 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView mImageView;
-    Button button;
+    Button button1, button2;
+    EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,9 +26,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         mImageView = (ImageView)findViewById(R.id.mImageView);
-        button = (Button)findViewById(R.id.button);
+        button1 = (Button)findViewById(R.id.Save_Face);
+        button2 = (Button)findViewById(R.id.Search_Face);
+        editText = (EditText)findViewById(R.id.editText);
 
-        button.setOnClickListener(this);
+        button1.setOnClickListener(this);
+        button2.setOnClickListener(this);
     }
 
     private void dispatchTakePictureIntent(){
@@ -44,9 +52,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v){
-        if(v == findViewById(R.id.button)){
+        if(v == findViewById(R.id.Save_Face)){
             dispatchTakePictureIntent();
-            //Call server with the picture
+            //Save the picture on disk with the title
+            String name = editText.getText().toString();
+
         }
+        else if(v == findViewById(R.id.Search_Face)){
+            dispatchTakePictureIntent();
+
+        }
+    }
+
+    private void returnName(final Bitmap imageBitmap){
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
     }
 }
