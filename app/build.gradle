@@ -1,16 +1,25 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.example.shivamgandhi.recoglass"
+<<<<<<< HEAD
         minSdkVersion 1
         targetSdkVersion 23
+=======
+        minSdkVersion 24
+        targetSdkVersion 24
+>>>>>>> 4402b3dfcc58dabb657502a93405daf54710ba7e
         versionCode 1
         versionName "1.0"
+        jackOptions {
+            enabled true
+        }
     }
+
     buildTypes {
         debug{
             debuggable true
@@ -20,13 +29,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile 'com.android.support:design:25.1.1'
     compile 'com.microsoft.projectoxford:face:1.0.0'
     compile 'com.microsoft.projectoxford:face:1.2.1'
     compile 'com.microsoft.azure:azure-mobile-android:3.1.0'
