@@ -46,4 +46,20 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:text="Train"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/mImageView"
+        android:layout_toStartOf="@+id/Search_Face"
+        android:layout_marginTop="19dp"
+        android:id="@+id/trainButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/trainButton"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textView2" />
+
 </RelativeLayout>

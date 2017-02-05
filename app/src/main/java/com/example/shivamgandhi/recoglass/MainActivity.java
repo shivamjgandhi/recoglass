@@ -14,11 +14,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.microsoft.projectoxford.face.contract.Person;
+import com.microsoft.projectoxford.face.contract.TrainingStatus;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,19 +41,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        det = new Detection("5347c2df9ae94876814ff955865024cd");
         setContentView(R.layout.activity_main);
         txt = (EditText) findViewById(R.id.nameField);
         mImageView = (ImageView)findViewById(R.id.mImageView);
         button1 = (Button)findViewById(R.id.Save_Face);
         button2 = (Button)findViewById(R.id.Search_Face);
 
-        txt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!txt.hasFocus())
-                txt.setText("");
-            }
-        });
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,8 +60,20 @@ public class MainActivity extends AppCompatActivity {
                 onSearchButtonClick(v);
             }
         });
+        findViewById(R.id.trainButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                det.train(DEF_PERSON_GROUP);
+                det.progress(DEF_PERSON_GROUP, new Consumer<TrainingStatus>() {
+                    public void accept(TrainingStatus t) {
+                        TextView v = (TextView)findViewById(R.id.textView2);
+                        v.setText(t.message);
+                    }
+                });
+            }
+        });
 
-        det = new Detection("API_KEY");
+
     }
 
     private void dispatchTakePictureIntent(int i){
@@ -73,17 +81,27 @@ public class MainActivity extends AppCompatActivity {
         if (takePictureIntent.resolveActivity(getPackageManager()) != null){
             startActivityForResult(takePictureIntent, i);
         }
+
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-
+        System.out.println("Lmao");
         if (requestCode == 1 && resultCode == RESULT_OK){
             Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            final Bitmap imageBitmap = (Bitmap) extras.get("data");
             mImageView.setImageBitmap(imageBitmap);
-            PersonModel p = PersonModel.getPerson(txt.getText().toString(), det, DEF_PERSON_GROUP);
-            p.addFace(imageBitmap);
+            PersonModel.getPerson(txt.getText().toString(), det, DEF_PERSON_GROUP, new Consumer<PersonModel>() {
+                public void accept(PersonModel p) {
+                    p.addFace(imageBitmap);
+                }
+            });
+            ObjectOutputStream oos = new ObjectOutputStream();
+            PersonModel.getPersonMap();
+            Intent myIntent = new Intent(this, MainActivity.class);
+            startActivity(myIntent);
+
         }
         else if (requestCode == 2 && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
@@ -113,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSaveButtonClick(View v) {
         dispatchTakePictureIntent(1);
+
     }
 
     public void onSearchButtonClick(View v) {

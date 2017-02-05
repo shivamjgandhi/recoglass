@@ -9,6 +9,7 @@ import com.microsoft.projectoxford.face.contract.CreatePersonResult;
 import com.microsoft.projectoxford.face.contract.Face;
 import com.microsoft.projectoxford.face.contract.IdentifyResult;
 import com.microsoft.projectoxford.face.contract.Person;
+import com.microsoft.projectoxford.face.contract.TrainingStatus;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -174,6 +175,39 @@ public class Detection {
                 if (p != null) {
                     personConsumer.accept(p);
                 }
+            }
+        };
+        ex.submit(r);
+    }
+
+    public void train(final String personGroupId) {
+        Runnable r = new Runnable() {
+            public void run() {
+                try {
+                    faceServiceClient.trainPersonGroup(personGroupId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        ex.submit(r);
+    }
+
+    public void progress(final String personGroupId, final Consumer<TrainingStatus> trainingStatusCallback) {
+        Runnable r = new Runnable() {
+            public void run() {
+                TrainingStatus stat = null;
+                try {
+                    stat = faceServiceClient.getPersonGroupTrainingStatus(personGroupId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (stat == null) {
+                    return;
+                }
+                trainingStatusCallback.accept(stat);
+
             }
         };
         ex.submit(r);
