@@ -11,7 +11,7 @@
     tools:context="com.example.shivamgandhi.recoglass.MainActivity">
 
     <Button
-        android:text="Save Face"
+        android:text="Search Face"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="25dp"
@@ -19,7 +19,7 @@
         android:layout_alignParentBottom="true" />
 
     <Button
-        android:text="Search Face"
+        android:text="Save Face"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/Save_Face"

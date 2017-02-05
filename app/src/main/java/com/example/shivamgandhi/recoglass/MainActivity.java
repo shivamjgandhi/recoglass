@@ -70,12 +70,14 @@ public class MainActivity extends AppCompatActivity {
                 onSaveButtonClick(v);
             }
         });
+
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onSearchButtonClick(v);
             }
         });
+
         final Button trainButton = (Button) findViewById(R.id.trainButton);
         trainButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,6 +120,12 @@ public class MainActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             final Bitmap imageBitmap = (Bitmap) extras.get("data");
             mImageView.setImageBitmap(imageBitmap);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            txt.setText("Shivam Gandhi");
             PersonModel.getPerson(txt.getText().toString(), det, DEF_PERSON_GROUP, new Consumer<PersonModel>() {
                 public void accept(PersonModel p) {
                     p.addFace(imageBitmap);
@@ -175,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveButtonClick(View v) {
         v.setEnabled(false);
         dispatchTakePictureIntent(1);
-
-
     }
 
     public void onSearchButtonClick(View v) {

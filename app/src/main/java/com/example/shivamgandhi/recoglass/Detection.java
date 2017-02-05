@@ -97,7 +97,7 @@ public class Detection {
             public void run() {
                 CreatePersonResult res = null;
                 try {
-                    res = faceServiceClient.createPerson(personGroupId, name, userData);
+                    res = faceServiceClient.createPerson(name, personGroupId, userData);
                 } catch (Exception e) {
                     // TODO: Exception handling
                     e.printStackTrace();
