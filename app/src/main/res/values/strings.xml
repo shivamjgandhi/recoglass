@@ -2,8 +2,6 @@
     <string name="app_name">recoglass</string>
     <string name="action_settings">Settings</string>
 
-    <string name="app_name">Sign In&amp;Up</string>
-    <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 
     <style name="DefaultButtonText">

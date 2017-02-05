@@ -3,28 +3,28 @@ package com.example.shivamgandhi.recoglass;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import com.microsoft.windowsazure.mobileservices.*;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilter;
-import com.microsoft.windowsazure.mobileservices.table.TableOperationCallback;
-
-import java.net.MalformedURLException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private MobileServiceClient mClient;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView mImageView;
     Button button1, button2;
     EditText editText;
+    String mCurrentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,19 +36,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button2 = (Button)findViewById(R.id.Search_Face);
         editText = (EditText)findViewById(R.id.editText);
 
-<<<<<<< HEAD
         button1.setOnClickListener(this);
         button2.setOnClickListener(this);
-=======
-        button.setOnClickListener(this);
-
-        try {
-
-            mClient = new MobileServiceClient("https://recoglass.azurewebsites.net", this);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
->>>>>>> a32e867cf5ef653c9a24cdeb391acd5377535d30
     }
 
     private void dispatchTakePictureIntent(){
@@ -72,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(v == findViewById(R.id.Save_Face)){
             dispatchTakePictureIntent();
             //Save the picture on disk with the title
-            String name = editText.getText().toString();
 
         }
         else if(v == findViewById(R.id.Search_Face)){
@@ -86,5 +74,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
+    }
+
+    private File createImageFile() throws IOException{
+        //Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String name = editText.getText().toString();
+        String imageFileName = name + "_JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 }
