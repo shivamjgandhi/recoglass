@@ -35,7 +35,7 @@
         android:id="@+id/textView2" />
 
     <Button
-        android:text="Save Face"
+        android:text="Search Face"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -44,7 +44,7 @@
         android:layout_alignParentEnd="true" />
 
     <Button
-        android:text="Search Face"
+        android:text="Save Face"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="17dp"

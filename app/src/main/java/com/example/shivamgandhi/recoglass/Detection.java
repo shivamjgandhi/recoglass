@@ -67,6 +67,7 @@ public class Detection {
     }
 
     public void identifyAsync(final String personGroupId, final UUID[] faceIds, final int numCandidates, final float confidence, final List<Consumer<UUID[]>> personIdCallbacks) {
+        System.out.println("HMMM IDENTIFYASYNC WHAAAAT");
         Runnable r = new Runnable() {
             public void run() {
                 IdentifyResult[] results = null;
@@ -108,6 +109,7 @@ public class Detection {
 
             }
         };
+        ex.submit(r);
     }
 
     public void createPersonGroup(final String personGroupId, final String name, final String userData) {

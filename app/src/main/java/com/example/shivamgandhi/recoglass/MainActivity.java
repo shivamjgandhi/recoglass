@@ -55,13 +55,17 @@ public class MainActivity extends AppCompatActivity {
         button1 = (Button)findViewById(R.id.Save_Face);
         button2 = (Button)findViewById(R.id.Search_Face);
         trainingButton = (Button) findViewById(R.id.trainButton);
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(this.getFilesDir(), PEOPLE_FILE)));
-            HashMap<String, String> s = (HashMap<String, String>)ois.readObject();
-            PersonModel.updatePersonMap(s, det, DEF_PERSON_GROUP);
-        } catch (Exception e) {
-            e.printStackTrace();
+        File f = new File(this.getFilesDir(), PEOPLE_FILE);
+        if (f.exists()) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+                HashMap<String, String> s = (HashMap<String, String>)ois.readObject();
+                PersonModel.updatePersonMap(s, det, DEF_PERSON_GROUP);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
 
 
         button1.setOnClickListener(new View.OnClickListener() {
@@ -120,12 +124,12 @@ public class MainActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             final Bitmap imageBitmap = (Bitmap) extras.get("data");
             mImageView.setImageBitmap(imageBitmap);
-            try {
+            /*try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            txt.setText("Shivam Gandhi");
+            txt.setText("Shivam Gandhi");*/
             PersonModel.getPerson(txt.getText().toString(), det, DEF_PERSON_GROUP, new Consumer<PersonModel>() {
                 public void accept(PersonModel p) {
                     p.addFace(imageBitmap);
